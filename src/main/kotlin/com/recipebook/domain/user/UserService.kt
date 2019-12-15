@@ -1,26 +1,33 @@
 package com.recipebook.domain.user
 
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.*
 
 @Service
 class UserService(private val userRepository: UserRepository) {
 
     fun getCurrentUser(): BaseUser {
-//        val jack = UUID.fromString("")
-        val sadie = UUID.fromString("6006c8f7-3f55-4e39-a644-c3f55d96f1e9") //default set user
-        if (currentBaseUser == null) {
-            setCurrentUser(sadie)
-            return userRepository.findByIdIs(sadie)
+        if (currentDefaultUser != null){
+            return currentDefaultUser as BaseUser
         }
-        return currentBaseUser as BaseUser
+
+        val allUsers = userRepository.findAll()
+        if (allUsers.isEmpty()) {
+            val newUser = BaseUser("Arthur", byteArrayOf(), LocalDate.now(), "This is arthur",
+                    "Arthur@rdr2.com")
+            userRepository.save(newUser)
+            return userRepository.findByIdIs(newUser.getId()!!)
+        }
+
+        return allUsers[0];
     }
 
     fun setCurrentUser(id: UUID) {
-        currentBaseUser = userRepository.findByIdIs(id) //TODO handle null
+        currentDefaultUser = userRepository.findByIdIs(id) //TODO handle null
     }
 
     companion object {
-        var currentBaseUser: BaseUser? = null
+        var currentDefaultUser: BaseUser? = null
     }
 }
