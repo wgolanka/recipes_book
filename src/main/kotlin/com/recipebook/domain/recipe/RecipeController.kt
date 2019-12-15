@@ -10,7 +10,7 @@ import java.util.*
 import javax.servlet.http.HttpServletResponse
 import javax.transaction.Transactional
 
-@CrossOrigin(origins = ["http://localhost:3000", "http://localhost:3000/#"], maxAge = 3600)
+@CrossOrigin(origins = ["http://localhost:8080", "http://localhost:8080/#"], maxAge = 3600)
 @Controller
 @Validated
 @RequestMapping("/recipe")
@@ -26,7 +26,6 @@ class RecipeController(private val recipeService: RecipeService) {
 
     @GetMapping("/all")
     fun getAllRecipes(): ResponseEntity<List<Recipe>> {
-
         val all = recipeService.getAll()
         return status(OK).body(all)
     }
@@ -34,14 +33,12 @@ class RecipeController(private val recipeService: RecipeService) {
     @PutMapping("/edit")
     @ResponseStatus(OK)
     fun getEditTea(@RequestBody(required = false) recipeObject: Recipe) {
-
         recipeService.update(recipeObject)
     }
 
     @DeleteMapping("/delete")
     @ResponseStatus(OK)
     fun deleteTea(@RequestParam(required = true) teaId: UUID) {
-
         recipeService.delete(teaId)
     }
 }
