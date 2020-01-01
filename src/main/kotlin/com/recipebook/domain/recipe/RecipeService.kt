@@ -1,15 +1,15 @@
 package com.recipebook.domain.recipe
 
-import com.recipebook.domain.user.UserService
+import com.recipebook.domain.user.AuthorService
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class RecipeService(private val userService: UserService,
+class RecipeService(private val authorService: AuthorService,
                     private val recipeRepository: RecipeRepository) {
 
     fun add(recipe: Recipe) {
-        val user = userService.getCurrentUser()
+        val user = authorService.getCurrentUser()
         recipeRepository.saveAndFlush(
                 Recipe(recipe.title, recipe.description, user)
         )

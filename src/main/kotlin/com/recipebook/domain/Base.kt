@@ -5,6 +5,5 @@ import java.io.Serializable
 
 abstract class Base : Serializable, AbstractJpaPersistable<Base>() {
 
-    abstract val emailAddress: String
-    abstract var phoneNumber: String?
+    abstract val email: String
 }

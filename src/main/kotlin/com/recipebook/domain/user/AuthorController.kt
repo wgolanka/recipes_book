@@ -8,12 +8,11 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDate
 import java.util.*
-import javax.servlet.http.HttpServletResponse
 
 @CrossOrigin(origins = ["http://localhost:3000", "http://localhost:3000/#"], maxAge = 3600)
 @Controller
 @RequestMapping("/user")
-class UserController(val userService: UserService, val userRepository: UserRepository) {
+class AuthorController(val authorService: AuthorService, val authorRepository: AuthorRepository) {
 
     @PostMapping(value = ["/add"])
     @ResponseStatus(HttpStatus.OK)
@@ -22,26 +21,26 @@ class UserController(val userService: UserService, val userRepository: UserRepos
                    @RequestParam(required = true) description: String,
                    @RequestParam(required = true) emailAddress: String) {
 
-        if (userRepository.findAll().stream().noneMatch { brewer -> brewer.emailAddress == emailAddress }) {
-            val newUser = BaseUser(nickname, avatar, LocalDate.now(), description, emailAddress)
-            userRepository.save(newUser)
+        if (authorRepository.findAll().stream().noneMatch { brewer -> brewer.emailAddress == emailAddress }) {
+            val newUser = Author(nickname, avatar, LocalDate.now(), description, emailAddress)
+            authorRepository.save(newUser)
         }
     }
 
     @GetMapping(value = ["/all"])
-    fun getUsers(): ResponseEntity<MutableList<BaseUser>> {
-        val all = userRepository.findAll()
+    fun getUsers(): ResponseEntity<MutableList<Author>> {
+        val all = authorRepository.findAll()
         return ok(all)
     }
 
     @GetMapping("/recipes")
     fun getUserRecipes(@RequestParam(required = true) id: String): ResponseEntity<MutableSet<Recipe>> { //TODO
-        val person = userRepository.findByIdIs(UUID.fromString(id))
+        val person = authorRepository.findByIdIs(UUID.fromString(id))
         return ok(person.createdRecipes)
     }
 
-    fun getAll(): MutableList<BaseUser> {
-        return userRepository.findAll()
+    fun getAll(): MutableList<Author> {
+        return authorRepository.findAll()
     }
 
     @PutMapping(value = ["/setCurrent"])
@@ -49,7 +48,7 @@ class UserController(val userService: UserService, val userRepository: UserRepos
     fun setCurrentUser(@RequestParam(required = true) uuid: UUID) {
         val exist = getAll().stream().anyMatch { user -> user.getId() == uuid }
         if (exist) {
-            userService.setCurrentUser(uuid)
+            authorService.setCurrentUser(uuid)
         }
     }
 }

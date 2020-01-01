@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository
 import java.util.*
 
 @Repository
-interface UserRepository : JpaRepository<BaseUser, Long> {
-    fun findByIdIs(id: UUID): BaseUser
+interface AuthorRepository : JpaRepository<Author, Long> {
+    fun findByIdIs(id: UUID): Author
 }
