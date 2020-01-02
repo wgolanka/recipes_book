@@ -22,4 +22,5 @@ class Recipe(var title: String,
              val steps: List<String>,
              val ingredients: List<Ingredient>,
              val commentsIds: List<UUID>) : AbstractJpaPersistable<Recipe>(), Serializable {
+
 }
