@@ -1,14 +1,9 @@
 package com.recipebook.domain.recipe
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.recipebook.domain.user.Author
 import com.recipebook.orm.AbstractJpaPersistable
-import com.sun.xml.fastinfoset.util.StringArray
 import java.io.Serializable
 import java.util.*
 import javax.persistence.Entity
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
 
 @Entity
 class Recipe(var title: String,
