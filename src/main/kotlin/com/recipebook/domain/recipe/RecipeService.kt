@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.user.Author
 import com.recipebook.domain.user.AuthorService
 import org.springframework.stereotype.Service
 import java.util.*
@@ -10,8 +11,30 @@ class RecipeService(private val authorService: AuthorService,
 
     fun add(recipe: Recipe) {
         val user = authorService.getCurrentUser()
+        val newRecipe = Recipe(recipe.title,
+                recipe.description,
+                user.getId()!!,
+                recipe.ratingsIds,
+                recipe.measurementSystemId,
+                recipe.tagsIds,
+                recipe.recipeImage,
+                recipe.isRecipePrivate,
+                recipe.steps,
+                recipe.commentsIds)
+
+        recipe.ingredients.stream().forEach { it.addRecipe(newRecipe) }
+
         recipeRepository.saveAndFlush(
-                Recipe(recipe.title, recipe.description, user)
+                Recipe(recipe.title,
+                        recipe.description,
+                        user.getId()!!,
+                        recipe.ratingsIds,
+                        recipe.measurementSystemId,
+                        recipe.tagsIds,
+                        recipe.recipeImage,
+                        recipe.isRecipePrivate,
+                        recipe.steps,
+                        recipe.commentsIds)
         )
     }
 
@@ -38,5 +61,11 @@ class RecipeService(private val authorService: AuthorService,
     fun delete(teaId: UUID) {
         val tea = recipeRepository.getRecipeByIdEquals(teaId) ?: return
         recipeRepository.delete(tea) //TODO does it work?
+    }
+
+    fun getUserRecipes(author: Author): List<Recipe> {
+        val allRecipes = getAll()
+        return allRecipes
+                .filter { recipe -> author.createdRecipesIds.contains(recipe.getId())}
     }
 }

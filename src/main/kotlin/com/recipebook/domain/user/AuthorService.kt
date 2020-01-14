@@ -1,10 +1,11 @@
 package com.recipebook.domain.user
 
 import org.springframework.stereotype.Service
-import java.time.LocalDate
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 
 @Service
+@Transactional
 class AuthorService(private val authorRepository: AuthorRepository) {
 
     fun getCurrentUser(): Author {
@@ -14,9 +15,10 @@ class AuthorService(private val authorRepository: AuthorRepository) {
 
         val allUsers = authorRepository.findAll()
         if (allUsers.isEmpty()) {
-            val newUser = Author("Arthur", byteArrayOf(), LocalDate.now(), "This is arthur",
-                    "Arthur@rdr2.com")
+            val newUser = Author("Arthur", "athurt@arthur.com", 1, "?",
+                    "", mutableSetOf(), mutableSetOf(), mutableSetOf(), true)
             authorRepository.save(newUser)
+
             return authorRepository.findByIdIs(newUser.getId()!!)
         }
 

@@ -19,8 +19,8 @@ class RecipeController(private val recipeService: RecipeService) {
 
     @PostMapping(value = ["/add"])
     @ResponseStatus(OK)
-    fun addRecipe(@RequestBody(required = false) recipeObject: Recipe, response: HttpServletResponse) {
-        recipeService.add(recipeObject) //todo null?
+    fun addRecipe(@RequestBody(required = false) recipe: Recipe, response: HttpServletResponse) {
+        recipeService.add(recipe) //todo null?
     }
 
     @GetMapping("/all")
