@@ -1,35 +1,42 @@
 package com.recipebook.domain.recipe
 
-import com.fasterxml.jackson.annotation.JsonIgnore
-import com.recipebook.domain.user.BaseUser
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
+import java.util.*
+import javax.persistence.ElementCollection
 import javax.persistence.Entity
-import javax.persistence.JoinColumn
-import javax.persistence.ManyToOne
+import javax.persistence.FetchType
+import javax.persistence.ManyToMany
 
 @Entity
 class Recipe(var title: String,
              var description: String,
+             val authorId: UUID,
 
-             @JsonIgnore
-             @ManyToOne
-             @JoinColumn(name = "user_id", nullable = false)
-             var author: BaseUser) : AbstractJpaPersistable<Recipe>(), Serializable {
+             @ElementCollection
+             val ratingsIds: Set<String>,
 
+             val measurementSystemId: Int,
 
-    init {
-        author.addCreatedRecipe(this)
-    }
+             @ElementCollection
+             val tagsIds: List<String>,
 
-    fun setRecipeAuthor(baseUser: BaseUser) {
-        if (author == baseUser) {
-            return
+             val recipeImage: String,
+             val isRecipePrivate: Boolean,
+
+             @ElementCollection
+             val steps: List<String>,
+
+             @ElementCollection
+             val commentsIds: List<UUID>) : AbstractJpaPersistable<Recipe>(), Serializable {
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    val ingredients: List<Ingredient> = mutableListOf()
+
+    fun addIngredient(ingredient: Ingredient) {
+        if (!ingredients.contains(ingredient)) {
+            ingredients.plus(ingredient)
+            ingredient.addRecipe(this)
         }
-
-        author.removeRecipe(this)
-
-        author = baseUser
-        author.addCreatedRecipe(this)
     }
 }

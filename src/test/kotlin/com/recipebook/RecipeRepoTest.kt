@@ -1,7 +1,7 @@
 package com.recipebook
 
 import com.recipebook.domain.recipe.RecipeRepository
-import com.recipebook.domain.user.UserRepository
+import com.recipebook.domain.user.AuthorRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,7 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 @ExtendWith(SpringExtension::class)
 @SpringBootTest
 class RecipeRepoTest(@Autowired val repository: RecipeRepository,
-                     @Autowired val userRepository: UserRepository) {
+                     @Autowired val authorRepository: AuthorRepository) {
     //todo make test connect to test db
     @Test
     fun `Get all brews by author id`() {
