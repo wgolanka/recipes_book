@@ -23,7 +23,7 @@ class IngredientController(private val ingredientService: IngredientService) {
     @PostMapping(value = ["/add"])
     @ResponseStatus(OK)
     fun addIngredient(@RequestBody(required = false) ingredient: Ingredient, response: HttpServletResponse) {
-        IngredientService.add(ingredient) //todo null?
+        ingredientService.add(ingredient) //todo null?
     }
 
     @GetMapping("/all")

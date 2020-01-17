@@ -5,28 +5,28 @@ import com.recipebook.domain.user.Author
 import org.springframework.stereotype.Service
 import java.util.*
 
-class IngredientService (private val ingredient: IngredientRepository) {
+class IngredientService (private val ingredientRepository: IngredientRepository) {
 
     fun add(ingredient: Ingredient) {
         val newIngredient = Ingredient(ingredient.name, ingredient.unit, ingredient.quantity)
 
-        IngredientRepository.saveAndFlush(
+        ingredientRepository.saveAndFlush(
                 Ingredient(ingredient.name,
                             ingredient.unit,
                             ingredient.quantity))
     }
 
     fun getAll(): List<Ingredient> {
-        return IngredientRepository.getAllByIdIsNotNull()
+        return ingredientRepository.getAllByIdIsNotNull()
     }
 
     fun update(ingredient: Ingredient) {
         if (ingredient.getId() == null) {
             return //TODO throw exception
     }
-        val existingIngredient = IngredientRepository.getIngredientByIdEquals(ingredient.getId())
+        val existingIngredient = ingredientRepository.getIngredientByIdEquals(ingredient.getId())
         if (existingIngredient != null) {
-        IngredientRepository.save(updateIngredientFields(existingIngredient, ingredient))
+        ingredientRepository.save(updateIngredientFields(existingIngredient, ingredient))
     }
 }
 
@@ -42,9 +42,9 @@ class IngredientService (private val ingredient: IngredientRepository) {
         val tea = ingredientRepository.getIngredientByIdEquals(teaId) ?: return
         ingredientRepository.delete(tea) //TODO does it work?
     }
-    fun getIngredients(ingredient: Ingredient): List<Ingredient> {
+    fun getIngredients(name: String): List<Ingredient> {
         val allIngredients = getAll()
+                .filter { ingredient -> ingredient.name.contains(name)  }
         return allIngredients
-                .filter { recipe -> ingredient.createdIngredientsIds.contains(ingredient.getId())}
     }
 }
