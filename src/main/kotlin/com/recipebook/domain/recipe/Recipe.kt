@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.ingredient.Ingredient
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
 import java.util.*

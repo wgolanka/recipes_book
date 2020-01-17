@@ -10,6 +10,7 @@ import javax.persistence.MappedSuperclass
 @MappedSuperclass
 abstract class AbstractJpaPersistable<T : Serializable> {
 
+    abstract val createdIngredientsIds: Any
     @Id
     @GeneratedValue
     private var id: UUID? = null
