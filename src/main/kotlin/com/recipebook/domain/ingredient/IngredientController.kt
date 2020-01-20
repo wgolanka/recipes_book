@@ -16,7 +16,6 @@ import javax.transaction.Transactional
 @Validated
 @RequestMapping("/ingredient")
 @Transactional
-/* @Autowired => nie chce przyjąć */
 
 class IngredientController(private val ingredientService: IngredientService) {
 
@@ -40,8 +39,9 @@ class IngredientController(private val ingredientService: IngredientService) {
 
     @DeleteMapping("/delete")
     @ResponseStatus(OK)
-    fun deleteIngredient(@RequestParam(required = true) teaId: UUID) {
-        ingredientService.delete(teaId)
+    fun deleteIngredient(@RequestParam(required = true) ingredientId: UUID) {
+        ingredientService.delete(ingredientId)
     }
 }
+
 

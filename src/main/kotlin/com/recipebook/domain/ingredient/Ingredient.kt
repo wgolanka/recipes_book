@@ -9,16 +9,14 @@ import javax.persistence.ManyToMany
 @Entity
 class Ingredient(var name: String, var unit: String, var quantity: Double) : AbstractJpaPersistable<Ingredient>(),
         Serializable {
-    constructor() : this(name ="" ,unit = "", quantity = 0.00) {
-
-    }
+     }
 
     @ManyToMany
-    val ingredients: List<Ingredient> = mutableListOf()
+    val ingredients: List<Recipe> = mutableListOf()
 
-    fun addRecipe(ingredient: Recipe) {
+    fun addIngredient(ingredient: Ingredient) {
         if (!ingredients.contains(ingredient)) {
-           ingredient.addIngredient(this)
+
         }
     }
 }

@@ -1,10 +1,10 @@
 package com.recipebook.domain.ingredient
 
-import com.recipebook.domain.recipe.Recipe
-import com.recipebook.domain.user.Author
 import org.springframework.stereotype.Service
 import java.util.*
 
+
+@Service
 class IngredientService (private val ingredientRepository: IngredientRepository) {
 
     fun add(ingredient: Ingredient) {
