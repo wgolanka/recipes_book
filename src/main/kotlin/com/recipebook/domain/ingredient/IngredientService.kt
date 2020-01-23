@@ -1,5 +1,6 @@
 package com.recipebook.domain.ingredient
 
+import com.recipebook.domain.recipe.Recipe
 import org.springframework.stereotype.Service
 import java.util.*
 
@@ -8,7 +9,7 @@ import java.util.*
 class IngredientService (private val ingredientRepository: IngredientRepository) {
 
     fun add(ingredient: Ingredient) {
-        val newIngredient = Ingredient(ingredient.name, ingredient.unit, ingredient.quantity)
+        val ingredient = Ingredient(ingredient.name, ingredient.unit, ingredient.quantity)
 
         ingredientRepository.saveAndFlush(
                 Ingredient(ingredient.name,
@@ -38,9 +39,9 @@ class IngredientService (private val ingredientRepository: IngredientRepository)
     return ingredient
 }
 
-    fun delete(teaId: UUID) {
-        val tea = ingredientRepository.getIngredientByIdEquals(teaId) ?: return
-        ingredientRepository.delete(tea) //TODO does it work?
+    fun delete(recipeId: UUID) {
+        val recipeId = ingredientRepository.getIngredientByIdEquals(recipeId) ?: return
+        ingredientRepository.delete(recipeId) //TODO does it work?
     }
     fun getIngredients(name: String): List<Ingredient> {
         val allIngredients = getAll()
