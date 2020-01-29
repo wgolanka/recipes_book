@@ -9,18 +9,17 @@ import java.util.*
 @Transactional
 class AuthorService(private val authorRepository: AuthorRepository) {
 
-    fun create(nickname: String, nickNameColorId: Int, password: String, authorRating: Double, email: String,
-               threshold: Int, accountActive: Boolean) {
+    fun create(author: Author) {
 
         val newAuthor =
-                Author(nickname,
-                        nickNameColorId,
-                        password,
-                        authorRating,
+                Author(author.nickname,
+                        author.nicknameColorId,
+                        author.password,
+                        author.authorRating,
                         0.0,
-                        email,
-                        threshold,
-                        accountActive)
+                        author.email,
+                        author.threshold,
+                        author.accountActive)
 
         authorRepository.saveAndFlush(newAuthor)
     }
