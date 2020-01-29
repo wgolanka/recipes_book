@@ -14,20 +14,20 @@ class Recipe(var title: String,
              var rating: Double,
 
              @Column(name = "notAuthorId")
-             val authorId: UUID?,
+             val authorId: UUID,
 
              val recipeImage: String?,
 
              val isRecipePrivate: Boolean,
 
              @ElementCollection
-             val ingredients: List<Ingredient>,
+             var ingredients: List<Ingredient>,
 
              @ElementCollection
              val steps: List<String>,
 
              @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "recipe")
-             val tagsIds: MutableSet<Tag>,
+             var tagsIds: MutableSet<Tag>,
 
              @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "recipe")
              val comments: MutableSet<Comment>
@@ -35,7 +35,7 @@ class Recipe(var title: String,
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 
     @ManyToOne
-    val author: Author? = null
+    var author: Author? = null
 
     init {
        tagsIds.forEach { tag -> tag.setNewRecipe(this) }

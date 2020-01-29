@@ -1,14 +1,81 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.recipe.dto.Ingredient
+import com.recipebook.domain.recipe.dto.MeasurementUnit
 import com.recipebook.domain.recipe.dto.Recipe
-import com.recipebook.domain.user.Author
+import com.recipebook.domain.recipe.dto.Tag
+import com.recipebook.domain.recipe.ingredient.IngredientRepository
+import com.recipebook.domain.recipe.measurmentunit.MeasurementUnitRepository
+import com.recipebook.domain.recipe.tag.TagRepository
 import com.recipebook.domain.user.AuthorService
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
-class RecipeService(private val authorService: AuthorService,
-                    private val recipeRepository: RecipeRepository) {
+@Transactional
+class RecipeService(private val recipeRepository: RecipeRepository,
+                    private val authorService: AuthorService,
+                    private val measurementUnitRepository: MeasurementUnitRepository,
+                    private val ingredientRepository: IngredientRepository,
+                    private val tagRepository: TagRepository) {
+
+    fun create(recipe: Recipe): Recipe? {
+        val author = authorService.getById(recipe.authorId)
+        //todo check if author exist
+        val newRecipe = Recipe(recipe.title,
+                recipe.description,
+                recipe.rating,
+                recipe.authorId,
+                recipe.recipeImage,
+                recipe.isRecipePrivate,
+                recipe.ingredients,
+                recipe.steps,
+                recipe.tagsIds,
+                recipe.comments)
+
+        newRecipe.author = author
+
+        val ingredients: MutableList<Ingredient> = mutableListOf()
+        recipe.ingredients.forEach { ingredient ->
+            val newIngredient = Ingredient(ingredient.name, ingredient.quantity, createAndGet(ingredient.measurementUnit))
+            ingredientRepository.saveAndFlush(newIngredient)
+            ingredients.add(newIngredient)
+        }
+        newRecipe.ingredients = ingredients
+
+        val tags: MutableSet<Tag> = mutableSetOf()
+        recipe.tagsIds.forEach { tag ->
+            val newTag = Tag(tag.name)
+            tagRepository.saveAndFlush(newTag)
+            tags.add(newTag)
+        }
+        newRecipe.tagsIds = tags
+
+        recipeRepository.saveAndFlush(newRecipe)
+
+        tags.forEach { tag ->
+            tag.recipe = newRecipe
+            tagRepository.saveAndFlush(tag)
+        }
+
+        return recipeRepository.findByIdIs(newRecipe.getId()!!) ?: return null
+    }
+
+    private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
+        val newMeasurementUnit = MeasurementUnit(measurementUnit.unit)
+        measurementUnitRepository.saveAndFlush(newMeasurementUnit)
+        return newMeasurementUnit
+    }
+
+    fun getRecipes(): List<Recipe> {
+        return recipeRepository.findAll()
+    }
+
+    fun get(recipeId: UUID): Recipe? {
+        //todo throw 404 if not exist
+        return recipeRepository.getRecipeByIdEquals(recipeId)
+    }
 
 //    fun add(recipe: Recipe) {
 //        val user = authorService.getCurrentUser()
