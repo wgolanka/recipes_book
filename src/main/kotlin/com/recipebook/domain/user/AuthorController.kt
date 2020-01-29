@@ -2,6 +2,7 @@ package com.recipebook.domain.user
 
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.badRequest
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -15,26 +16,42 @@ class AuthorController(val authorService: AuthorService, val authorRepository: A
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     fun create(@RequestBody author: Author): ResponseEntity<Author> {
-        if (!userExist(author.email)) {
+        if (!authorService.userExistByEmail(author.email)) {
             authorService.create(author.nickname,
                     author.nicknameColorId,
                     author.password,
                     author.authorRating,
                     author.email,
                     author.threshold,
-                    author.isAccountActive)
+                    author.accountActive)
         }
 
         return ok(authorService.getByEmail(author.email))
     }
 
-    fun userExist(email: String): Boolean {
-        return authorRepository.findByEmailIs(email) != null
-    }
-
     @GetMapping()
     fun getUsers(): ResponseEntity<MutableList<Author>> {
         return ok(authorService.getAll())
+    }
+
+    @PutMapping
+    @ResponseStatus(HttpStatus.OK)
+    fun update(@RequestBody author: Author): ResponseEntity<Author>? {
+        if (!authorService.userExistById(author.getId()!!)) {
+            return badRequest().body(null).statusCode(HttpStatus.NOT_FOUND) //TODO it works?
+        }
+
+        authorService.update(author.getId(),
+                author.nickname,
+                author.nicknameColorId,
+                author.password,
+                author.authorRating,
+                author.authorRatingSum,
+                author.email,
+                author.threshold,
+                author.accountActive)
+
+        return ok(authorService.getById(author.getId()!!))
     }
 
     @PutMapping(value = ["/current"])
@@ -45,4 +62,8 @@ class AuthorController(val authorService: AuthorService, val authorRepository: A
             authorService.setCurrentUser(id)
         }
     }
+}
+
+private operator fun HttpStatus.invoke(notFound: HttpStatus): ResponseEntity<Author>? {
+    return null
 }

@@ -10,7 +10,7 @@ import java.util.*
 class AuthorService(private val authorRepository: AuthorRepository) {
 
     fun create(nickname: String, nickNameColorId: Int, password: String, authorRating: Double, email: String,
-               threshold: Int, isAccountActive: Boolean) {
+               threshold: Int, accountActive: Boolean) {
 
         val newAuthor =
                 Author(nickname,
@@ -20,7 +20,7 @@ class AuthorService(private val authorRepository: AuthorRepository) {
                         0.0,
                         email,
                         threshold,
-                        isAccountActive)
+                        accountActive)
 
         authorRepository.saveAndFlush(newAuthor)
     }
@@ -49,6 +49,14 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         return authorRepository.findAll()
     }
 
+    fun userExistByEmail(email: String): Boolean {
+        return authorRepository.findByEmailIs(email) != null
+    }
+
+    fun userExistById(id: UUID): Boolean {
+        return authorRepository.findByIdIs(id) != null
+    }
+
     fun getByEmail(email: String): Author {
         val author = authorRepository.findByEmailIs(email)
 
@@ -57,6 +65,33 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         } else {
             return author
         }
+    }
+
+    fun getById(id: UUID): Author {
+        val author = authorRepository.findByIdIs(id)
+
+        if (author == null) {
+            throw NotFoundException("No author with email: $id")
+        } else {
+            return author
+        }
+    }
+
+    fun update(id: UUID?, nickname: String, nicknameColorId: Int, password: String, authorRating: Double,
+               authorRatingSum: Double, email: String, threshold: Int, accountActive: Boolean) {
+
+        val author = authorRepository.findByIdIs(id!!) ?: throw NotFoundException("User with id $id doesn't exist")
+
+        author.email = email
+        author.nickname = nickname
+        author.nicknameColorId = nicknameColorId
+        author.password = password
+        author.authorRating = authorRating
+        author.authorRatingSum = authorRatingSum
+        author.threshold = threshold
+        author.accountActive = accountActive
+
+        authorRepository.saveAndFlush(author)
     }
 
     companion object {
