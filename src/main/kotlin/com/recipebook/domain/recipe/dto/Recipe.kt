@@ -8,10 +8,16 @@ import javax.persistence.*
 
 @Entity
 class Recipe(var title: String,
+
              var description: String,
+
              var rating: Double,
+
+             @Column(name = "notAuthorId")
              val authorId: UUID?,
+
              val recipeImage: String?,
+
              val isRecipePrivate: Boolean,
 
              @ElementCollection
