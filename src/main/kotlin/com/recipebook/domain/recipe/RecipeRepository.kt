@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.recipe.dto.Recipe
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*

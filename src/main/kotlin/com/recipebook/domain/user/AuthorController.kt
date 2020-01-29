@@ -1,6 +1,6 @@
 package com.recipebook.domain.user
 
-import com.recipebook.domain.recipe.Recipe
+import com.recipebook.domain.recipe.dto.Recipe
 import com.recipebook.domain.recipe.RecipeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity

@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.recipe.dto.Recipe
 import com.recipebook.domain.user.Author
 import com.recipebook.domain.user.AuthorService
 import org.springframework.stereotype.Service

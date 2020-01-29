@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.recipe.dto.Recipe
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.status

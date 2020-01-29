@@ -1,36 +1,21 @@
 package com.recipebook.domain.user
 
+import com.recipebook.domain.recipe.dto.Recipe
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
-import java.util.*
-import javax.persistence.ElementCollection
-import javax.persistence.Entity
+import javax.persistence.*
 
 @Entity
 class Author(val nickname: String,
-             val emailAddress: String,
              val nicknameColorId: Int,
-             val threshold: String,
-             val avatarImg: String,
+             val password: String,
+             val authorRating: Double,
+             val authorRatingSum: Double,
+             val email: String,
+             val threshold: Double,
+             val isAccountActive: Boolean,
 
-             @ElementCollection
-             val createdCommentsIds: MutableSet<UUID>,
+             @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "author")
+             val recipes: MutableSet<Recipe>) : AbstractJpaPersistable<Author>(), Serializable {
 
-             @ElementCollection
-             val createdRecipesIds: MutableSet<UUID>,
-
-             @ElementCollection
-             val createdRatingsIds: MutableSet<UUID>,
-
-             val isAccountActive: Boolean) : AbstractJpaPersistable<Author>(), Serializable {
-
-    fun addCreatedRecipeId(recipeId: UUID) {
-        if (!createdRecipesIds.contains(recipeId)) {
-            createdRecipesIds.add(recipeId)
-        }
-    }
-
-    fun removeRecipeId(recipeId: UUID) {
-        createdRecipesIds.remove(recipeId)
-    }
 }
