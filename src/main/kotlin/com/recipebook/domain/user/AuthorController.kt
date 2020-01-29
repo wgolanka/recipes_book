@@ -1,9 +1,8 @@
 package com.recipebook.domain.user
 
-import com.recipebook.domain.recipe.Recipe
-import com.recipebook.domain.recipe.RecipeService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.ResponseEntity.badRequest
 import org.springframework.http.ResponseEntity.ok
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -11,57 +10,59 @@ import java.util.*
 
 @CrossOrigin(origins = ["http://localhost:3000", "http://localhost:3000/#"], maxAge = 3600)
 @Controller
-@RequestMapping("/user")
-class AuthorController(val authorService: AuthorService, val authorRepository: AuthorRepository,
-                       val recipeService: RecipeService) {
+@RequestMapping("/authors")
+class AuthorController(val authorService: AuthorService) {
 
-    @PostMapping(value = ["/add"])
+    @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    fun addNewUser(@RequestBody author: Author) {
-
-        if (!userExist(author.emailAddress)) {
-            val newUser = Author(author.nickname,
-                    author.emailAddress,
-                    author.nicknameColorId,
-                    author.threshold,
-                    author.avatarImg,
-                    author.createdCommentsIds,
-                    author.createdRecipesIds,
-                    author.createdRatingsIds,
-                    author.isAccountActive)
-
-            authorRepository.save(newUser)
+    fun create(@RequestBody author: Author): ResponseEntity<Author> {
+        if (!authorService.userExistByEmail(author.email)) {
+            authorService.create(author)
         }
+
+        return ok(authorService.getByEmail(author.email))
     }
 
-    fun userExist(emailAddress: String): Boolean {
-        return authorRepository.findAll().stream().noneMatch { brewer ->
-            brewer.emailAddress == emailAddress
-        }
-    }
-
-    @GetMapping(value = ["/all"])
+    @GetMapping
     fun getUsers(): ResponseEntity<MutableList<Author>> {
-        val all = authorRepository.findAll()
-        return ok(all)
+        return ok(authorService.getAll())
     }
 
-    @GetMapping("/recipes")
-    fun getUserRecipes(@RequestParam(required = true) id: String): ResponseEntity<List<Recipe>> { //TODO
-        val person = authorRepository.findByIdIs(UUID.fromString(id))
-        return ok(recipeService.getUserRecipes(person))
+    @GetMapping("/{authorId}")
+    fun getUser(@PathVariable("authorId") authorId: UUID): ResponseEntity<Author> {
+        return ok(authorService.getById(authorId))
     }
 
-    fun getAll(): MutableList<Author> {
-        return authorRepository.findAll()
-    }
-
-    @PutMapping(value = ["/setCurrent"])
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    fun setCurrentUser(@RequestParam(required = true) uuid: UUID) {
-        val exist = getAll().stream().anyMatch { user -> user.getId() == uuid }
+    fun update(@RequestBody author: Author): ResponseEntity<Author>? {
+        if (!authorService.userExistById(author.getId()!!)) {
+            return badRequest().body(null).statusCode(HttpStatus.NOT_FOUND) //TODO it works?
+        }
+
+        authorService.update(author.getId(),
+                author.nickname,
+                author.nicknameColorId,
+                author.password,
+                author.authorRating,
+                author.authorRatingSum,
+                author.email,
+                author.threshold,
+                author.accountActive)
+
+        return ok(authorService.getById(author.getId()!!))
+    }
+
+    @PutMapping(value = ["/current"])
+    @ResponseStatus(HttpStatus.OK)
+    fun setCurrentUser(@RequestParam(required = true) id: UUID) {
+        val exist = authorService.getAll().stream().anyMatch { user -> user.getId() == id }
         if (exist) {
-            authorService.setCurrentUser(uuid)
+            authorService.setCurrentUser(id)
         }
     }
+}
+
+private operator fun HttpStatus.invoke(notFound: HttpStatus): ResponseEntity<Author>? {
+    return null
 }

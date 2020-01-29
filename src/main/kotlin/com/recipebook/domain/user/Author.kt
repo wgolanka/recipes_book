@@ -1,36 +1,23 @@
 package com.recipebook.domain.user
 
+import com.recipebook.domain.recipe.dto.Recipe
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
-import java.util.*
-import javax.persistence.ElementCollection
+import javax.persistence.CascadeType
 import javax.persistence.Entity
+import javax.persistence.FetchType
+import javax.persistence.OneToMany
 
 @Entity
-class Author(val nickname: String,
-             val emailAddress: String,
-             val nicknameColorId: Int,
-             val threshold: String,
-             val avatarImg: String,
+class Author(var nickname: String,
+             var nicknameColorId: Int,
+             var password: String,
+             var authorRating: Double,
+             var authorRatingSum: Double,
+             var email: String,
+             var threshold: Int,
+             var accountActive: Boolean) : AbstractJpaPersistable<Author>(), Serializable {
 
-             @ElementCollection
-             val createdCommentsIds: MutableSet<UUID>,
-
-             @ElementCollection
-             val createdRecipesIds: MutableSet<UUID>,
-
-             @ElementCollection
-             val createdRatingsIds: MutableSet<UUID>,
-
-             val isAccountActive: Boolean) : AbstractJpaPersistable<Author>(), Serializable {
-
-    fun addCreatedRecipeId(recipeId: UUID) {
-        if (!createdRecipesIds.contains(recipeId)) {
-            createdRecipesIds.add(recipeId)
-        }
-    }
-
-    fun removeRecipeId(recipeId: UUID) {
-        createdRecipesIds.remove(recipeId)
-    }
+    @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "author")
+    val recipes: MutableSet<Recipe> = mutableSetOf()
 }

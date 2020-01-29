@@ -6,5 +6,7 @@ import java.util.*
 
 @Repository
 interface AuthorRepository : JpaRepository<Author, Long> {
-    fun findByIdIs(id: UUID): Author
+    fun findByIdIs(id: UUID): Author?
+    fun findByEmailIs(email: String): Author?
+    fun existsByEmailIs(email: String): Boolean
 }
