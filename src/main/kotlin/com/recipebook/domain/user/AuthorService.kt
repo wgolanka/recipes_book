@@ -10,7 +10,6 @@ import java.util.*
 class AuthorService(private val authorRepository: AuthorRepository) {
 
     fun create(author: Author) {
-
         val newAuthor =
                 Author(author.nickname,
                         author.nicknameColorId,
@@ -77,11 +76,10 @@ class AuthorService(private val authorRepository: AuthorRepository) {
     }
 
     fun update(id: UUID?, nickname: String, nicknameColorId: Int, password: String, authorRating: Double,
-               authorRatingSum: Double, email: String, threshold: Int, accountActive: Boolean) {
+               authorRatingSum: Double, threshold: Int, accountActive: Boolean) {
 
         val author = authorRepository.findByIdIs(id!!) ?: throw NotFoundException("User with id $id doesn't exist")
 
-        author.email = email
         author.nickname = nickname
         author.nicknameColorId = nicknameColorId
         author.password = password
@@ -91,6 +89,16 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         author.accountActive = accountActive
 
         authorRepository.saveAndFlush(author)
+    }
+
+    fun authorizeAndGet(authorEmail: String, authorPassword: String): Author? {
+        val author = authorRepository.findByEmailIs(authorEmail) ?: return null
+
+        return if (author.password == authorPassword) {
+            author
+        } else {
+            null
+        }
     }
 
     companion object {
