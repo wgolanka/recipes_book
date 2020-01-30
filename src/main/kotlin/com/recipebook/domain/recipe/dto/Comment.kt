@@ -19,7 +19,8 @@ class Comment(
 
         val commentContent: String,
 
-        var recipeRating: Double?) : AbstractJpaPersistable<Comment>(), Serializable {
+        var recipeRating: Double?,
+        var pictureLink: String) : AbstractJpaPersistable<Comment>(), Serializable {
 
     @ManyToOne
     var recipe: Recipe? = null

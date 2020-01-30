@@ -18,7 +18,7 @@ class Recipe(var title: String,
 
              val recipeImage: String?,
 
-             val isRecipePrivate: Boolean,
+             val recipePrivate: Boolean,
 
              @ElementCollection
              var ingredients: List<Ingredient>,

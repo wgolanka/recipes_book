@@ -28,7 +28,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 recipe.rating,
                 recipe.authorId,
                 recipe.recipeImage,
-                recipe.isRecipePrivate,
+                recipe.recipePrivate,
                 recipe.ingredients,
                 recipe.steps,
                 recipe.tagsIds,
@@ -75,6 +75,14 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     fun get(recipeId: UUID): Recipe? {
         //todo throw 404 if not exist
         return recipeRepository.getRecipeByIdEquals(recipeId)
+    }
+
+    fun geIngredients(): List<Ingredient> {
+        return ingredientRepository.findAll()
+    }
+
+    fun getMeasurementUnits(): List<MeasurementUnit> {
+        return measurementUnitRepository.findAll()
     }
 
 //    fun add(recipe: Recipe) {

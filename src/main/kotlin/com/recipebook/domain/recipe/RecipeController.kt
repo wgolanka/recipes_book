@@ -1,5 +1,7 @@
 package com.recipebook.domain.recipe
 
+import com.recipebook.domain.recipe.dto.Ingredient
+import com.recipebook.domain.recipe.dto.MeasurementUnit
 import com.recipebook.domain.recipe.dto.Recipe
 import com.recipebook.domain.recipe.dto.SkimRecipe
 import org.springframework.http.HttpStatus
@@ -44,6 +46,21 @@ class RecipeController(private val recipeService: RecipeService) {
             )
         }
         return status(OK).body(skimmedRecipes)
+    }
+
+    @GetMapping("/details")
+    fun getRecipesDetailed(): ResponseEntity<List<Recipe>> {
+        return status(OK).body(recipeService.getRecipes())
+    }
+
+    @GetMapping("/ingredients")
+    fun getIngredients(): ResponseEntity<List<Ingredient>> {
+        return status(OK).body(recipeService.geIngredients())
+    }
+
+    @GetMapping("/measurementUnits")
+    fun getMeasurementUnits(): ResponseEntity<List<MeasurementUnit>> {
+        return status(OK).body(recipeService.getMeasurementUnits())
     }
 
     @GetMapping("/{recipeId}")
