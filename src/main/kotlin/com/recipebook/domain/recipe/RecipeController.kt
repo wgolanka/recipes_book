@@ -1,9 +1,6 @@
 package com.recipebook.domain.recipe
 
-import com.recipebook.domain.recipe.dto.Ingredient
-import com.recipebook.domain.recipe.dto.MeasurementUnit
-import com.recipebook.domain.recipe.dto.Recipe
-import com.recipebook.domain.recipe.dto.SkimRecipe
+import com.recipebook.domain.recipe.dto.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.ResponseEntity
@@ -29,6 +26,15 @@ class RecipeController(private val recipeService: RecipeService) {
                 ?: return status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
 
         return ok(newRecipe)
+    }
+
+    @PostMapping("/comments")
+    fun addComment(@RequestBody(required = false) comment: Comment): ResponseEntity<Comment> {
+
+        val newComment = recipeService.create(comment)
+                ?: return status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+
+        return ok(newComment)
     }
 
     @GetMapping
@@ -66,6 +72,11 @@ class RecipeController(private val recipeService: RecipeService) {
     @GetMapping("/{recipeId}")
     fun getRecipe(@PathVariable("recipeId") recipeId: UUID): ResponseEntity<Recipe> {
         return status(OK).body(recipeService.get(recipeId))
+    }
+
+    @GetMapping("/comments")
+    fun getComments(): ResponseEntity<List<Comment>> {
+        return status(OK).body(recipeService.getComments())
     }
 //
 //    @PutMapping("/edit")

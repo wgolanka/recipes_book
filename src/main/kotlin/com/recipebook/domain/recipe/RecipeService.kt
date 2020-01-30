@@ -1,9 +1,7 @@
 package com.recipebook.domain.recipe
 
-import com.recipebook.domain.recipe.dto.Ingredient
-import com.recipebook.domain.recipe.dto.MeasurementUnit
-import com.recipebook.domain.recipe.dto.Recipe
-import com.recipebook.domain.recipe.dto.Tag
+import com.recipebook.domain.recipe.comment.CommentRepository
+import com.recipebook.domain.recipe.dto.*
 import com.recipebook.domain.recipe.ingredient.IngredientRepository
 import com.recipebook.domain.recipe.measurmentunit.MeasurementUnitRepository
 import com.recipebook.domain.recipe.tag.TagRepository
@@ -18,7 +16,8 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                     private val authorService: AuthorService,
                     private val measurementUnitRepository: MeasurementUnitRepository,
                     private val ingredientRepository: IngredientRepository,
-                    private val tagRepository: TagRepository) {
+                    private val tagRepository: TagRepository,
+                    private val commentRepository: CommentRepository) {
 
     fun create(recipe: Recipe): Recipe? {
         val author = authorService.getById(recipe.authorId)
@@ -62,6 +61,24 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         return recipeRepository.findByIdIs(newRecipe.getId()!!) ?: return null
     }
 
+    fun create(comment: Comment): Comment? {
+        val author = authorService.getById(comment.authorId)
+        val recipe = recipeRepository.getRecipeByIdEquals(comment.recipeId) ?: return null
+
+        val newComment = Comment(
+                author.getId()!!,
+                comment.authorNickname,
+                comment.recipeId,
+                comment.commentContent,
+                comment.recipeRating,
+                comment.pictureLink)
+
+        newComment.setNewRecipe(recipe)
+
+        commentRepository.saveAndFlush(newComment)
+        return commentRepository.findByIdIs(newComment.getId()!!) ?: return null
+    }
+
     private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
         val newMeasurementUnit = MeasurementUnit(measurementUnit.unit)
         measurementUnitRepository.saveAndFlush(newMeasurementUnit)
@@ -83,6 +100,10 @@ class RecipeService(private val recipeRepository: RecipeRepository,
 
     fun getMeasurementUnits(): List<MeasurementUnit> {
         return measurementUnitRepository.findAll()
+    }
+
+    fun getComments(): List<Comment> {
+        return commentRepository.findAll()
     }
 
 //    fun add(recipe: Recipe) {
