@@ -29,7 +29,10 @@ class AuthorController(val authorService: AuthorService) {
 
     @GetMapping("/{authorId}")
     fun getUser(@PathVariable("authorId") authorId: UUID): ResponseEntity<Author> {
-        return ok(authorService.getById(authorId))
+        val author = authorService.getById(authorId)
+                ?: return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
+
+        return ok(author)
     }
 
     @GetMapping("/{authorEmail}/{authorPassword}")
@@ -58,7 +61,7 @@ class AuthorController(val authorService: AuthorService) {
                 author.threshold,
                 author.accountActive)
 
-        return ok(authorService.getById(author.getId()!!))
+        return ok(authorService.getById(author.getId()!!)!!)
     }
 
     @PutMapping(value = ["/current"])

@@ -65,14 +65,8 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         }
     }
 
-    fun getById(id: UUID): Author {
-        val author = authorRepository.findByIdIs(id)
-
-        if (author == null) {
-            throw NotFoundException("No author with id: $id")
-        } else {
-            return author
-        }
+    fun getById(id: UUID): Author? {
+        return authorRepository.findByIdIs(id) ?: return null
     }
 
     fun update(id: UUID?, nickname: String, nicknameColorId: Int, password: String, authorRating: Double,

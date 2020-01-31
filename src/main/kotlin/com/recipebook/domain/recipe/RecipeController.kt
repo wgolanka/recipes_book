@@ -71,7 +71,8 @@ class RecipeController(private val recipeService: RecipeService) {
 
     @GetMapping("/{recipeId}")
     fun getRecipe(@PathVariable("recipeId") recipeId: UUID): ResponseEntity<Recipe> {
-        return status(OK).body(recipeService.get(recipeId))
+        val recipe = recipeService.get(recipeId) ?: return status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+        return ok(recipe)
     }
 
     @GetMapping("/comments")
@@ -86,11 +87,12 @@ class RecipeController(private val recipeService: RecipeService) {
         }
         return status(OK).body(recipeService.updateAndGet(recipe))
     }
-//
-//    @DeleteMapping("/delete")
-//    @ResponseStatus(OK)
-//    fun deleteRecipe(@RequestParam(required = true) teaId: UUID) {
-//        recipeService.delete(teaId)
-//    }
+
+    @ResponseStatus(OK)
+    @DeleteMapping("/{recipeId}")
+    fun deleteRecipe(@PathVariable("recipeId") recipeId: UUID) {
+        //TODO fix - delete also orphaned ingredients
+        recipeService.delete(recipeId)
+    }
 }
 
