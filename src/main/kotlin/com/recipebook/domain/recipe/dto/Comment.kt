@@ -18,7 +18,7 @@ class Comment(
         @Column(name = "notRecipeId")
         var recipeId: UUID?,
 
-        val commentContent: String,
+        var commentContent: String,
 
         var recipeRating: Double?,
         var pictureLink: String) : AbstractJpaPersistable<Comment>(), Serializable {
