@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe.dto
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.recipebook.domain.user.Author
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
@@ -20,7 +21,7 @@ class Recipe(var title: String,
 
              var recipePrivate: Boolean,
 
-             @ElementCollection
+             @ElementCollection(fetch = FetchType.EAGER)
              var ingredients: List<Ingredient>,
 
              @ElementCollection
@@ -34,6 +35,7 @@ class Recipe(var title: String,
 
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 
+    @JsonBackReference
     @ManyToOne
     var author: Author? = null
 

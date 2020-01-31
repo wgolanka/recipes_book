@@ -10,5 +10,6 @@ interface RecipeRepository : JpaRepository<Recipe, Long> {
     fun getAllByIdIsNotNull(): List<Recipe>
     fun findByIdIs(id: UUID): Recipe?
     fun getRecipeByIdEquals(id: UUID?): Recipe?
+    fun existsByIdIs(id: UUID): Boolean
     fun deleteByIdEquals(id: UUID?)
 }

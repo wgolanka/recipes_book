@@ -22,7 +22,8 @@ class RecipeService(private val recipeRepository: RecipeRepository,
 
     fun create(recipe: Recipe): Recipe? {
         val author = authorService.getById(recipe.authorId)
-        //todo check if author exist
+                ?: throw NotFoundException("Author with id ${recipe.authorId} doesn't exist")
+
         val newRecipe = Recipe(recipe.title,
                 recipe.description,
                 recipe.rating,
@@ -63,7 +64,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     }
 
     fun create(comment: Comment): Comment? {
-        val author = authorService.getById(comment.authorId)
+        val author = authorService.getById(comment.authorId) ?: return null
         val recipe = recipeRepository.getRecipeByIdEquals(comment.recipeId) ?: return null
 
         val newComment = Comment(
@@ -91,8 +92,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     }
 
     fun get(recipeId: UUID): Recipe? {
-        //todo throw 404 if not exist
-        return recipeRepository.getRecipeByIdEquals(recipeId)
+        return recipeRepository.getRecipeByIdEquals(recipeId) ?: return null
     }
 
     fun geIngredients(): List<Ingredient> {
@@ -153,6 +153,19 @@ class RecipeService(private val recipeRepository: RecipeRepository,
 
         recipeRepository.saveAndFlush(recipe)
         return recipe
+    }
+
+    fun delete(recipeId: UUID) {
+        val recipe = recipeRepository.findByIdIs(recipeId)
+                ?: throw NotFoundException("Recipe with id $recipeId doesn't exist")
+        recipe.author?.recipes?.remove(recipe)
+        recipe.author = null
+        recipeRepository.saveAndFlush(recipe)
+        recipeRepository.delete(recipe)
+
+        if (recipeRepository.existsByIdIs(recipeId)) {
+            throw Exception()
+        }
     }
 //
 //    fun delete(teaId: UUID) {
