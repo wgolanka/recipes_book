@@ -78,12 +78,14 @@ class RecipeController(private val recipeService: RecipeService) {
     fun getComments(): ResponseEntity<List<Comment>> {
         return status(OK).body(recipeService.getComments())
     }
-//
-//    @PutMapping("/edit")
-//    @ResponseStatus(OK)
-//    fun updateRecipe(@RequestBody(required = false) recipeObject: Recipe) {
-//        recipeService.update(recipeObject)
-//    }
+
+    @PutMapping
+    fun updateRecipe(@RequestBody(required = false) recipe: Recipe): ResponseEntity<Recipe> {
+        if (recipe.getId() == null) {
+            return status(HttpStatus.BAD_REQUEST).body(null)
+        }
+        return status(OK).body(recipeService.updateAndGet(recipe))
+    }
 //
 //    @DeleteMapping("/delete")
 //    @ResponseStatus(OK)

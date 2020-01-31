@@ -16,15 +16,15 @@ class Recipe(var title: String,
              @Column(name = "notAuthorId")
              val authorId: UUID,
 
-             val recipeImage: String?,
+             var recipeImage: String?,
 
-             val recipePrivate: Boolean,
+             var recipePrivate: Boolean,
 
              @ElementCollection
              var ingredients: List<Ingredient>,
 
              @ElementCollection
-             val steps: List<String>,
+             var steps: List<String>,
 
              @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "recipe")
              var tagsIds: MutableSet<Tag>,
@@ -40,12 +40,4 @@ class Recipe(var title: String,
     init {
        tagsIds.forEach { tag -> tag.setNewRecipe(this) }
     }
-
-
-//    fun addIngredient(ingredient: Ingredient) {
-//        if (!ingredients.contains(ingredient)) {
-//            ingredients.plus(ingredient)
-//            ingredient.addRecipe(this)
-//        }
-//    }
 }
