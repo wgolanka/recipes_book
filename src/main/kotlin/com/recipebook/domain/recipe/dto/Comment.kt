@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe.dto
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
 import java.util.*
@@ -19,8 +20,10 @@ class Comment(
 
         val commentContent: String,
 
-        var recipeRating: Double?) : AbstractJpaPersistable<Comment>(), Serializable {
+        var recipeRating: Double?,
+        var pictureLink: String) : AbstractJpaPersistable<Comment>(), Serializable {
 
+    @JsonBackReference
     @ManyToOne
     var recipe: Recipe? = null
 

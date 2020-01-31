@@ -69,7 +69,7 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         val author = authorRepository.findByIdIs(id)
 
         if (author == null) {
-            throw NotFoundException("No author with email: $id")
+            throw NotFoundException("No author with id: $id")
         } else {
             return author
         }

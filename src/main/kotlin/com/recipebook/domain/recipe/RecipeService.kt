@@ -1,63 +1,144 @@
 package com.recipebook.domain.recipe
 
-import com.recipebook.domain.recipe.dto.Recipe
-import com.recipebook.domain.user.Author
+import com.recipebook.domain.recipe.comment.CommentRepository
+import com.recipebook.domain.recipe.dto.*
+import com.recipebook.domain.recipe.ingredient.IngredientRepository
+import com.recipebook.domain.recipe.measurmentunit.MeasurementUnitRepository
+import com.recipebook.domain.recipe.tag.TagRepository
 import com.recipebook.domain.user.AuthorService
+import javassist.NotFoundException
 import org.springframework.stereotype.Service
 import java.util.*
+import javax.transaction.Transactional
 
 @Service
-class RecipeService(private val authorService: AuthorService,
-                    private val recipeRepository: RecipeRepository) {
+@Transactional
+class RecipeService(private val recipeRepository: RecipeRepository,
+                    private val authorService: AuthorService,
+                    private val measurementUnitRepository: MeasurementUnitRepository,
+                    private val ingredientRepository: IngredientRepository,
+                    private val tagRepository: TagRepository,
+                    private val commentRepository: CommentRepository) {
 
-//    fun add(recipe: Recipe) {
-//        val user = authorService.getCurrentUser()
-//        val newRecipe = Recipe(recipe.title,
-//                recipe.description,
-//                user.getId()!!,
-//                recipe.ratingsIds,
-//                recipe.measurementSystemId,
-//                recipe.tagsIds,
-//                recipe.recipeImage,
-//                recipe.isRecipePrivate,
-//                recipe.steps,
-//                recipe.commentsIds)
-//
-//        recipe.ingredients.stream().forEach { it.addRecipe(newRecipe) }
-//
-//        recipeRepository.saveAndFlush(
-//                Recipe(recipe.title,
-//                        recipe.description,
-//                        user.getId()!!,
-//                        recipe.ratingsIds,
-//                        recipe.measurementSystemId,
-//                        recipe.tagsIds,
-//                        recipe.recipeImage,
-//                        recipe.isRecipePrivate,
-//                        recipe.steps,
-//                        recipe.commentsIds)
-//        )
-//    }
-//
-//    fun getAll(): List<Recipe> {
-//        return recipeRepository.getAllByIdIsNotNull()
-//    }
-//
-//    fun update(recipe: Recipe) {
-//        if (recipe.getId() == null) {
-//            return //TODO throw exception
-//        }
-//        val existingRecipe = recipeRepository.getRecipeByIdEquals(recipe.getId())
-//        if (existingRecipe != null) {
-//            recipeRepository.save(updateRecipeFields(existingRecipe, recipe))
-//        }
-//    }
-//
-//    fun updateRecipeFields(recipe: Recipe, updated: Recipe): Recipe {
-//        recipe.title = updated.title
-//        recipe.description = updated.description
-//        return recipe
-//    }
+    fun create(recipe: Recipe): Recipe? {
+        val author = authorService.getById(recipe.authorId)
+        //todo check if author exist
+        val newRecipe = Recipe(recipe.title,
+                recipe.description,
+                recipe.rating,
+                recipe.authorId,
+                recipe.recipeImage,
+                recipe.recipePrivate,
+                recipe.ingredients,
+                recipe.steps,
+                recipe.tagsIds,
+                recipe.comments)
+
+        newRecipe.author = author
+
+        val ingredients: MutableList<Ingredient> = mutableListOf()
+        recipe.ingredients.forEach { ingredient ->
+            val newIngredient = Ingredient(ingredient.name, ingredient.quantity, createAndGet(ingredient.measurementUnit))
+            ingredientRepository.saveAndFlush(newIngredient)
+            ingredients.add(newIngredient)
+        }
+        newRecipe.ingredients = ingredients
+
+        val tags: MutableSet<Tag> = mutableSetOf()
+        recipe.tagsIds.forEach { tag ->
+            val newTag = Tag(tag.name)
+            tagRepository.saveAndFlush(newTag)
+            tags.add(newTag)
+        }
+        newRecipe.tagsIds = tags
+
+        recipeRepository.saveAndFlush(newRecipe)
+
+        tags.forEach { tag ->
+            tag.recipe = newRecipe
+            tagRepository.saveAndFlush(tag)
+        }
+
+        return recipeRepository.findByIdIs(newRecipe.getId()!!) ?: return null
+    }
+
+    fun create(comment: Comment): Comment? {
+        val author = authorService.getById(comment.authorId)
+        val recipe = recipeRepository.getRecipeByIdEquals(comment.recipeId) ?: return null
+
+        val newComment = Comment(
+                author.getId()!!,
+                comment.authorNickname,
+                comment.recipeId,
+                comment.commentContent,
+                comment.recipeRating,
+                comment.pictureLink)
+
+        newComment.setNewRecipe(recipe)
+
+        commentRepository.saveAndFlush(newComment)
+        return commentRepository.findByIdIs(newComment.getId()!!) ?: return null
+    }
+
+    private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
+        val newMeasurementUnit = MeasurementUnit(measurementUnit.unit)
+        measurementUnitRepository.saveAndFlush(newMeasurementUnit)
+        return newMeasurementUnit
+    }
+
+    fun getRecipes(): List<Recipe> {
+        return recipeRepository.findAll()
+    }
+
+    fun get(recipeId: UUID): Recipe? {
+        //todo throw 404 if not exist
+        return recipeRepository.getRecipeByIdEquals(recipeId)
+    }
+
+    fun geIngredients(): List<Ingredient> {
+        return ingredientRepository.findAll()
+    }
+
+    fun getMeasurementUnits(): List<MeasurementUnit> {
+        return measurementUnitRepository.findAll()
+    }
+
+    fun getComments(): List<Comment> {
+        return commentRepository.findAll()
+    }
+
+    fun updateAndGet(recipe: Recipe): Recipe {
+        val existingRecipe = recipeRepository.getRecipeByIdEquals(recipe.getId())
+                ?: throw NotFoundException("Recipe with id ${recipe.getId()} doesn't exist")
+
+        updateAndSaveRecipeFields(existingRecipe, recipe)
+        return existingRecipe
+    }
+
+    fun updateAndSaveRecipeFields(recipe: Recipe, updated: Recipe): Recipe {
+        recipe.description = updated.description
+        recipe.rating = updated.rating
+        recipe.recipeImage = updated.recipeImage
+        recipe.recipePrivate = updated.recipePrivate
+        recipe.steps = updated.steps
+
+        var counter = 0
+        recipe.ingredients.forEach { ingredient ->
+            ingredient.measurementUnit.unit = updated.ingredients[counter].measurementUnit.unit
+
+            measurementUnitRepository.saveAndFlush(ingredient.measurementUnit)
+
+            ingredient.name = updated.ingredients[counter].name
+            ingredient.quantity = updated.ingredients[counter].quantity
+
+            ingredientRepository.saveAndFlush(ingredient)
+
+            counter += 1
+        }
+
+        recipeRepository.saveAndFlush(recipe)
+        return recipe
+    }
 //
 //    fun delete(teaId: UUID) {
 //        val tea = recipeRepository.getRecipeByIdEquals(teaId) ?: return

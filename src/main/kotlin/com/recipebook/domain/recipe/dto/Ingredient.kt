@@ -7,9 +7,9 @@ import javax.persistence.Entity
 import javax.persistence.OneToOne
 
 @Entity
-class Ingredient(val name: String,
+class Ingredient(var name: String,
 
-                 val quantity: Double,
+                 var quantity: Double,
 
                  @OneToOne(cascade = [CascadeType.ALL])
                  val measurementUnit: MeasurementUnit) : AbstractJpaPersistable<Recipe>(), Serializable {
