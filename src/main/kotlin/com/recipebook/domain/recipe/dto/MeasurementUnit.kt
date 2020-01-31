@@ -7,7 +7,7 @@ import javax.persistence.Entity
 import javax.persistence.OneToOne
 
 @Entity
-class MeasurementUnit(val unit: String) : AbstractJpaPersistable<MeasurementUnit>(), Serializable {
+class MeasurementUnit(var unit: String) : AbstractJpaPersistable<MeasurementUnit>(), Serializable {
 
     @JsonBackReference
     @OneToOne

@@ -30,7 +30,7 @@ class Recipe(var title: String,
              var tagsIds: MutableSet<Tag>,
 
              @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "recipe")
-             val comments: MutableSet<Comment>
+             var comments: MutableSet<Comment>
 
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 

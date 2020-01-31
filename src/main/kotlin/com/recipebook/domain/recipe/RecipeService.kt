@@ -122,6 +122,20 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         recipe.recipePrivate = updated.recipePrivate
         recipe.steps = updated.steps
 
+        var counter = 0
+        recipe.ingredients.forEach { ingredient ->
+            ingredient.measurementUnit.unit = updated.ingredients[counter].measurementUnit.unit
+
+            measurementUnitRepository.saveAndFlush(ingredient.measurementUnit)
+
+            ingredient.name = updated.ingredients[counter].name
+            ingredient.quantity = updated.ingredients[counter].quantity
+
+            ingredientRepository.saveAndFlush(ingredient)
+
+            counter += 1
+        }
+
         recipeRepository.saveAndFlush(recipe)
         return recipe
     }
