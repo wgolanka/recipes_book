@@ -7,7 +7,7 @@ import javax.persistence.Entity
 import javax.persistence.ManyToOne
 
 @Entity
-class Tag(val name: String) : AbstractJpaPersistable<Tag>(), Serializable {
+class Tag(var name: String) : AbstractJpaPersistable<Tag>(), Serializable {
 
     @JsonBackReference
     @ManyToOne

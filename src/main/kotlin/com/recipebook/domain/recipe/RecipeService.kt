@@ -136,6 +136,21 @@ class RecipeService(private val recipeRepository: RecipeRepository,
             counter += 1
         }
 
+        recipe.tagsIds.forEach { tag ->
+            tag.name = updated.tagsIds.find { updatedTag -> tag.getId() == updatedTag.getId() }?.name ?: tag.name
+            tagRepository.save(tag)
+        }
+
+        recipe.comments.forEach { comment ->
+            val updatedComment = updated.comments.find { updatedComment -> comment.getId() == updatedComment.getId() }
+
+            comment.commentContent = updatedComment?.commentContent ?: comment.commentContent
+            comment.recipeRating = updatedComment?.recipeRating ?: comment.recipeRating
+            comment.pictureLink = updatedComment?.pictureLink ?: comment.pictureLink
+
+            commentRepository.save(comment)
+        }
+
         recipeRepository.saveAndFlush(recipe)
         return recipe
     }
