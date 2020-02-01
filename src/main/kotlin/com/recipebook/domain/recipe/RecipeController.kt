@@ -91,7 +91,6 @@ class RecipeController(private val recipeService: RecipeService) {
     @ResponseStatus(OK)
     @DeleteMapping("/{recipeId}")
     fun deleteRecipe(@PathVariable("recipeId") recipeId: UUID) {
-        //TODO fix - delete also orphaned ingredients
         recipeService.delete(recipeId)
     }
 }

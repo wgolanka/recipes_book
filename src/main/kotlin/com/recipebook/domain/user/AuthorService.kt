@@ -1,5 +1,6 @@
 package com.recipebook.domain.user
 
+import com.recipebook.domain.recipe.dto.Recipe
 import javassist.NotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -15,7 +16,6 @@ class AuthorService(private val authorRepository: AuthorRepository) {
                         author.nicknameColorId,
                         author.password,
                         author.authorRating,
-                        0.0,
                         author.email,
                         author.threshold,
                         author.accountActive)
@@ -30,7 +30,7 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         val allUsers = authorRepository.findAll()
         if (allUsers.isEmpty()) {
             val newUser = Author("Arthur", 1, "pass", 10.2,
-                    12.1, "smth@smth.com", 20, true)
+                    "smth@smth.com", 20, true)
             authorRepository.save(newUser)
 
             return authorRepository.findAll()[0]
@@ -70,15 +70,13 @@ class AuthorService(private val authorRepository: AuthorRepository) {
     }
 
     fun update(id: UUID?, nickname: String, nicknameColorId: Int, password: String, authorRating: Double,
-               authorRatingSum: Double, threshold: Int, accountActive: Boolean) {
+               threshold: Int, accountActive: Boolean) {
 
         val author = authorRepository.findByIdIs(id!!) ?: throw NotFoundException("User with id $id doesn't exist")
 
         author.nickname = nickname
         author.nicknameColorId = nicknameColorId
         author.password = password
-        author.authorRating = authorRating
-        author.authorRatingSum = authorRatingSum
         author.threshold = threshold
         author.accountActive = accountActive
 
@@ -93,6 +91,16 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         } else {
             null
         }
+    }
+
+    fun refreshRating(author: Author, recipe: Recipe) {
+        var sum = 0.0
+        author.recipes.forEach { nextRecipe ->
+            sum += nextRecipe.rating
+        }
+        author.authorRating = sum / author.recipes.size
+
+        authorRepository.saveAndFlush(author)
     }
 
     companion object {
