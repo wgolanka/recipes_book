@@ -1,6 +1,5 @@
 package com.recipebook.domain.recipe.dto
 
-import com.fasterxml.jackson.annotation.JsonBackReference
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.recipebook.domain.user.Author
 import com.recipebook.orm.AbstractJpaPersistable
@@ -40,7 +39,6 @@ class Recipe(var title: String,
 
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 
-    @JsonBackReference
     @ManyToOne
     var author: Author? = null
 
