@@ -1,7 +1,5 @@
 package com.recipebook.domain.recipe.dto
 
-import com.fasterxml.jackson.annotation.JsonBackReference
-import com.fasterxml.jackson.annotation.JsonIgnore
 import com.recipebook.domain.user.Author
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
@@ -14,10 +12,6 @@ class Recipe(var title: String,
              var description: String,
 
              var rating: Double,
-
-             @JsonIgnore
-             @OneToOne(cascade = [CascadeType.ALL])
-             var ratingHistory: RecipeRating?,
 
              @Column(name = "notAuthorId")
              val authorId: UUID,
@@ -40,7 +34,6 @@ class Recipe(var title: String,
 
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 
-    @JsonBackReference
     @ManyToOne
     var author: Author? = null
 
