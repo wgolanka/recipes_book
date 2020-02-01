@@ -22,7 +22,7 @@ class Recipe(var title: String,
              var recipePrivate: Boolean,
 
              @ElementCollection(fetch = FetchType.EAGER)
-             var ingredients: List<Ingredient>,
+             var ingredients: MutableList<Ingredient>,
 
              @ElementCollection
              var steps: List<String>,

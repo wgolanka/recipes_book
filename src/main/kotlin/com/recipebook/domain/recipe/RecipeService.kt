@@ -160,6 +160,10 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 ?: throw NotFoundException("Recipe with id $recipeId doesn't exist")
         recipe.author?.recipes?.remove(recipe)
         recipe.author = null
+        recipe.ingredients.forEach { ingredient ->
+            ingredientRepository.delete(ingredient)
+        }
+        recipe.ingredients.clear()
         recipeRepository.saveAndFlush(recipe)
         recipeRepository.delete(recipe)
 
@@ -167,15 +171,4 @@ class RecipeService(private val recipeRepository: RecipeRepository,
             throw Exception()
         }
     }
-//
-//    fun delete(teaId: UUID) {
-//        val tea = recipeRepository.getRecipeByIdEquals(teaId) ?: return
-//        recipeRepository.delete(tea) //TODO does it work?
-//    }
-//
-//    fun getUserRecipes(author: Author): List<Recipe> {
-//        val allRecipes = getAll()
-//        return allRecipes
-//                .filter { recipe -> author.createdRecipesIds.contains(recipe.getId())}
-//    }
 }
