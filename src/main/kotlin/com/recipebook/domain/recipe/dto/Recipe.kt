@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import com.recipebook.domain.user.Author
 import com.recipebook.orm.AbstractJpaPersistable
 import java.io.Serializable
+import java.time.LocalDate
 import java.util.*
 import javax.persistence.*
 
@@ -35,7 +36,9 @@ class Recipe(var title: String,
              var tagsIds: MutableSet<Tag>,
 
              @OneToMany(fetch = FetchType.EAGER, cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "recipe")
-             var comments: MutableSet<Comment>
+             var comments: MutableSet<Comment>,
+
+             val createdDate: LocalDate
 
 ) : AbstractJpaPersistable<Recipe>(), Serializable {
 

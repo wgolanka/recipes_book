@@ -99,9 +99,16 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         author.recipes.forEach { nextRecipe ->
             sum += nextRecipe.rating
         }
-        author.authorRating = sum / author.recipes.size
 
-        authorRepository.saveAndFlush(author)
+        if (sum > 0.0 && author.recipes.size > 0) {
+            author.authorRating = sum / author.recipes.size
+        }
+    }
+
+    fun addFavorite(authorId: UUID, recipeId: UUID): Author? {
+        val author = authorRepository.findByIdIs(authorId) ?: return null
+        author.favoriteRecipes.add(recipeId)
+        return author
     }
 
     companion object {

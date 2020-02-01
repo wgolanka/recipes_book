@@ -9,6 +9,7 @@ import com.recipebook.domain.recipe.tag.TagRepository
 import com.recipebook.domain.user.AuthorService
 import javassist.NotFoundException
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.*
 import javax.transaction.Transactional
 
@@ -34,12 +35,13 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 0.0,
                 recipeRating,
                 recipe.authorId,
-                recipe.recipeImage,
+                recipe.recipeImage ?: " ",
                 recipe.recipePrivate,
                 recipe.ingredients,
                 recipe.steps,
                 recipe.tagsIds,
-                recipe.comments)
+                recipe.comments,
+                LocalDate.now())
 
         newRecipe.author = author
 
@@ -96,7 +98,6 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     private fun addRecipeRating(recipe: Recipe, newComment: Comment) {
         recipe.ratingHistory!!.addNew(newComment.recipeRating ?: 0.0)
         recipe.rating = recipe.ratingHistory!!.getRating()
-        recipeRepository.saveAndFlush(recipe)
     }
 
     private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
@@ -113,7 +114,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         return recipeRepository.getRecipeByIdEquals(recipeId) ?: return null
     }
 
-    fun geIngredients(): List<Ingredient> {
+    fun getIngredients(): List<Ingredient> {
         return ingredientRepository.findAll()
     }
 
@@ -181,6 +182,11 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 ?: throw NotFoundException("Recipe with id $recipeId doesn't exist")
         recipe.author?.recipes?.remove(recipe)
         authorService.refreshRating(recipe.authorId)
+
+        if (recipe.author!!.favoriteRecipes.contains(recipeId)) {
+            recipe.author!!.favoriteRecipes.remove(recipeId)
+        }
+
         recipe.author = null
         recipe.ingredients.forEach { ingredient ->
             ingredientRepository.delete(ingredient)
@@ -193,5 +199,45 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         if (recipeRepository.existsByIdIs(recipeId)) {
             throw Exception()
         }
+    }
+
+    fun search(authorId: UUID, phrase: String?, destination: String?, onlyMine: Boolean?, onlyPrivate: Boolean?,
+               onlyFavorite: Boolean?): List<Recipe>? {
+
+        val allRecipes = recipeRepository.findAll()
+        val author = authorService.getById(authorId) ?: return null
+
+        var allRecipesFiltered = listOf<Recipe>()
+
+        if (destination != null && phrase != null) {
+
+            if (destination.toLowerCase() == "title".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe -> phrase.contains(recipe.title, ignoreCase = true) }
+            }
+
+            if (destination.toLowerCase() == "description".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe -> phrase.contains(recipe.description, ignoreCase = true) }
+            }
+
+            if (destination.toLowerCase() == "tags".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe ->
+                    recipe.tagsIds.any { tag -> phrase.contains(tag.name, ignoreCase = true) }
+                }
+            }
+        }
+
+        if (onlyMine != null && onlyMine) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> recipe.authorId == authorId }
+        }
+
+        if (onlyFavorite != null && onlyFavorite) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> author.favoriteRecipes.contains(recipe.getId()) }
+        }
+
+        if (onlyPrivate != null && onlyPrivate) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> recipe.recipePrivate }
+        }
+
+        return allRecipesFiltered
     }
 }

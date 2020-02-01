@@ -48,7 +48,8 @@ class RecipeController(private val recipeService: RecipeService) {
                             recipe.author?.nickname,
                             recipe.author?.nicknameColorId,
                             recipe.rating,
-                            recipe.recipeImage)
+                            recipe.recipeImage,
+                            recipe.createdDate)
             )
         }
         return status(OK).body(skimmedRecipes)
@@ -61,7 +62,7 @@ class RecipeController(private val recipeService: RecipeService) {
 
     @GetMapping("/ingredients")
     fun getIngredients(): ResponseEntity<List<Ingredient>> {
-        return status(OK).body(recipeService.geIngredients())
+        return status(OK).body(recipeService.getIngredients())
     }
 
     @GetMapping("/measurementUnits")
@@ -73,6 +74,20 @@ class RecipeController(private val recipeService: RecipeService) {
     fun getRecipe(@PathVariable("recipeId") recipeId: UUID): ResponseEntity<Recipe> {
         val recipe = recipeService.get(recipeId) ?: return status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
         return ok(recipe)
+    }
+
+    @GetMapping("/search/{authorId}")
+    fun search(@PathVariable("authorId") authorId: UUID,
+               @RequestParam(required = false) phrase: String?,
+               @RequestParam(required = false) destination: String?,
+               @RequestParam(required = false) onlyMine: Boolean?,
+               @RequestParam(required = false) onlyPrivate: Boolean?,
+               @RequestParam(required = false) onlyFavorite: Boolean?): ResponseEntity<List<Recipe>> {
+
+        val recipes = recipeService.search(authorId, phrase, destination, onlyMine, onlyPrivate, onlyFavorite)
+                ?: return status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+
+        return ok(recipes)
     }
 
     @GetMapping("/comments")

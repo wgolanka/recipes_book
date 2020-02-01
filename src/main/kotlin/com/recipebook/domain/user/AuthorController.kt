@@ -22,6 +22,16 @@ class AuthorController(val authorService: AuthorService) {
         return ok(authorService.getByEmail(author.email))
     }
 
+    @PostMapping("/favorites/{authorId}/{recipeId}")
+    fun addFavorite(@PathVariable("authorId") authorId: UUID,
+                    @PathVariable("recipeId") recipeId: UUID): ResponseEntity<Author> {
+
+        val author = authorService.addFavorite(authorId, recipeId)
+                ?: return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+
+        return ok(author)
+    }
+
     @GetMapping
     fun getUsers(): ResponseEntity<MutableList<Author>> {
         return ok(authorService.getAll())

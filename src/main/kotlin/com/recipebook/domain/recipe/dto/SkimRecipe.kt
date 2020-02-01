@@ -1,5 +1,6 @@
 package com.recipebook.domain.recipe.dto
 
+import java.time.LocalDate
 import java.util.*
 
 class SkimRecipe(val id: UUID?,
@@ -7,4 +8,5 @@ class SkimRecipe(val id: UUID?,
                  val authorNickname: String?,
                  val nicknameColorId: Int?,
                  val rating: Double,
-                 val recipeImage: String?)
+                 val recipeImage: String?,
+                 val createdDate: LocalDate)
