@@ -111,6 +111,13 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         return author
     }
 
+    fun removeFavorite(authorId: UUID, recipeId: UUID): Author? {
+        val author = authorRepository.findByIdIs(authorId) ?: return null
+        author.favoriteRecipes.remove(recipeId)
+
+        return author
+    }
+
     companion object {
         var currentDefaultUser: Author? = null
     }
