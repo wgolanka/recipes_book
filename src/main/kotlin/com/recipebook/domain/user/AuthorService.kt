@@ -102,8 +102,8 @@ class AuthorService(private val authorRepository: AuthorRepository) {
 
         if (sum > 0.0 && author.recipes.size > 0) {
             author.authorRating = sum / author.recipes.size
+            authorRepository.saveAndFlush(author)
         }
-        authorRepository.saveAndFlush(author)
     }
 
     companion object {
