@@ -1,6 +1,5 @@
 package com.recipebook.domain.user
 
-import com.recipebook.domain.recipe.dto.Recipe
 import javassist.NotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -93,7 +92,9 @@ class AuthorService(private val authorRepository: AuthorRepository) {
         }
     }
 
-    fun refreshRating(author: Author, recipe: Recipe) {
+    fun refreshRating(authorId: UUID) {
+        val author = authorRepository.findByIdIs(authorId) ?: throw Exception()
+
         var sum = 0.0
         author.recipes.forEach { nextRecipe ->
             sum += nextRecipe.rating

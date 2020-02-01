@@ -17,7 +17,7 @@ class Recipe(var title: String,
 
              @JsonIgnore
              @OneToOne(cascade = [CascadeType.ALL])
-             var ratingHistory: RecipeRating,
+             var ratingHistory: RecipeRating?,
 
              @Column(name = "notAuthorId")
              val authorId: UUID,
