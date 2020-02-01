@@ -98,7 +98,6 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     private fun addRecipeRating(recipe: Recipe, newComment: Comment) {
         recipe.ratingHistory!!.addNew(newComment.recipeRating ?: 0.0)
         recipe.rating = recipe.ratingHistory!!.getRating()
-        recipeRepository.saveAndFlush(recipe)
     }
 
     private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
@@ -115,7 +114,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         return recipeRepository.getRecipeByIdEquals(recipeId) ?: return null
     }
 
-    fun geIngredients(): List<Ingredient> {
+    fun getIngredients(): List<Ingredient> {
         return ingredientRepository.findAll()
     }
 

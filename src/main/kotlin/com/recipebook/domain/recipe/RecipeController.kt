@@ -61,7 +61,7 @@ class RecipeController(private val recipeService: RecipeService) {
 
     @GetMapping("/ingredients")
     fun getIngredients(): ResponseEntity<List<Ingredient>> {
-        return status(OK).body(recipeService.geIngredients())
+        return status(OK).body(recipeService.getIngredients())
     }
 
     @GetMapping("/measurementUnits")
