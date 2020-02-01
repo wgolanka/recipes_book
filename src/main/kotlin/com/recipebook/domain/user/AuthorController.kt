@@ -32,6 +32,16 @@ class AuthorController(val authorService: AuthorService) {
         return ok(author)
     }
 
+    @DeleteMapping("/favorites/{authorId}/{recipeId}")
+    fun removeFavorite(@PathVariable("authorId") authorId: UUID,
+                       @PathVariable("recipeId") recipeId: UUID): ResponseEntity<Author> {
+
+        val author = authorService.removeFavorite(authorId, recipeId)
+                ?: return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null)
+
+        return ok(author)
+    }
+
     @GetMapping
     fun getUsers(): ResponseEntity<MutableList<Author>> {
         return ok(authorService.getAll())
