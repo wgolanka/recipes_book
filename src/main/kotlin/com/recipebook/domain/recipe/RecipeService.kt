@@ -1,6 +1,7 @@
 package com.recipebook.domain.recipe
 
 import com.recipebook.domain.recipe.comment.CommentRepository
+import com.recipebook.domain.recipe.comment.RecipeRatingRepository
 import com.recipebook.domain.recipe.dto.*
 import com.recipebook.domain.recipe.ingredient.IngredientRepository
 import com.recipebook.domain.recipe.measurmentunit.MeasurementUnitRepository
@@ -18,15 +19,20 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                     private val measurementUnitRepository: MeasurementUnitRepository,
                     private val ingredientRepository: IngredientRepository,
                     private val tagRepository: TagRepository,
-                    private val commentRepository: CommentRepository) {
+                    private val commentRepository: CommentRepository,
+                    private val recipeRatingRepository: RecipeRatingRepository) {
 
     fun create(recipe: Recipe): Recipe? {
         val author = authorService.getById(recipe.authorId)
                 ?: throw NotFoundException("Author with id ${recipe.authorId} doesn't exist")
 
+        val recipeRating = RecipeRating()
+        recipeRatingRepository.save(recipeRating)
+
         val newRecipe = Recipe(recipe.title,
                 recipe.description,
-                recipe.rating,
+                0.0,
+                recipeRating,
                 recipe.authorId,
                 recipe.recipeImage,
                 recipe.recipePrivate,
@@ -60,6 +66,9 @@ class RecipeService(private val recipeRepository: RecipeRepository,
             tagRepository.saveAndFlush(tag)
         }
 
+        recipeRating.recipe = newRecipe
+        recipeRatingRepository.saveAndFlush(recipeRating)
+
         return recipeRepository.findByIdIs(newRecipe.getId()!!) ?: return null
     }
 
@@ -77,8 +86,17 @@ class RecipeService(private val recipeRepository: RecipeRepository,
 
         newComment.setNewRecipe(recipe)
 
+        addRecipeRating(recipe, newComment)
+        authorService.refreshRating(author.getId()!!)
+
         commentRepository.saveAndFlush(newComment)
         return commentRepository.findByIdIs(newComment.getId()!!) ?: return null
+    }
+
+    private fun addRecipeRating(recipe: Recipe, newComment: Comment) {
+        recipe.ratingHistory!!.addNew(newComment.recipeRating ?: 0.0)
+        recipe.rating = recipe.ratingHistory!!.getRating()
+        recipeRepository.saveAndFlush(recipe)
     }
 
     private fun createAndGet(measurementUnit: MeasurementUnit): MeasurementUnit {
@@ -116,6 +134,7 @@ class RecipeService(private val recipeRepository: RecipeRepository,
     }
 
     fun updateAndSaveRecipeFields(recipe: Recipe, updated: Recipe): Recipe {
+        recipe.title = updated.title
         recipe.description = updated.description
         recipe.rating = updated.rating
         recipe.recipeImage = updated.recipeImage
@@ -124,16 +143,18 @@ class RecipeService(private val recipeRepository: RecipeRepository,
 
         var counter = 0
         recipe.ingredients.forEach { ingredient ->
-            ingredient.measurementUnit.unit = updated.ingredients[counter].measurementUnit.unit
+            if (updated.ingredients.size <= counter) {
+                ingredient.measurementUnit.unit = updated.ingredients[counter].measurementUnit.unit
 
-            measurementUnitRepository.saveAndFlush(ingredient.measurementUnit)
+                measurementUnitRepository.saveAndFlush(ingredient.measurementUnit)
 
-            ingredient.name = updated.ingredients[counter].name
-            ingredient.quantity = updated.ingredients[counter].quantity
+                ingredient.name = updated.ingredients[counter].name
+                ingredient.quantity = updated.ingredients[counter].quantity
 
-            ingredientRepository.saveAndFlush(ingredient)
+                ingredientRepository.saveAndFlush(ingredient)
 
-            counter += 1
+                counter += 1
+            }
         }
 
         recipe.tagsIds.forEach { tag ->
@@ -159,11 +180,13 @@ class RecipeService(private val recipeRepository: RecipeRepository,
         val recipe = recipeRepository.findByIdIs(recipeId)
                 ?: throw NotFoundException("Recipe with id $recipeId doesn't exist")
         recipe.author?.recipes?.remove(recipe)
+        authorService.refreshRating(recipe.authorId)
         recipe.author = null
         recipe.ingredients.forEach { ingredient ->
             ingredientRepository.delete(ingredient)
         }
         recipe.ingredients.clear()
+        recipe.ratingHistory = null
         recipeRepository.saveAndFlush(recipe)
         recipeRepository.delete(recipe)
 

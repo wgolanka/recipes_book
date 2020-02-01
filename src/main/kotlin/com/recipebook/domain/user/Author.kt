@@ -14,7 +14,6 @@ class Author(var nickname: String,
              var nicknameColorId: Int,
              var password: String,
              var authorRating: Double,
-             var authorRatingSum: Double,
              var email: String,
              var threshold: Int,
              var accountActive: Boolean) : AbstractJpaPersistable<Author>(), Serializable {
