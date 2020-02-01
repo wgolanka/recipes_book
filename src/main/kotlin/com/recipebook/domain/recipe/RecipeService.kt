@@ -200,4 +200,44 @@ class RecipeService(private val recipeRepository: RecipeRepository,
             throw Exception()
         }
     }
+
+    fun search(authorId: UUID, phrase: String?, destination: String?, onlyMine: Boolean?, onlyPrivate: Boolean?,
+               onlyFavorite: Boolean?): List<Recipe>? {
+
+        val allRecipes = recipeRepository.findAll()
+        val author = authorService.getById(authorId) ?: return null
+
+        var allRecipesFiltered = listOf<Recipe>()
+
+        if (destination != null && phrase != null) {
+
+            if (destination.toLowerCase() == "title".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe -> phrase.contains(recipe.title, ignoreCase = true) }
+            }
+
+            if (destination.toLowerCase() == "description".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe -> phrase.contains(recipe.description, ignoreCase = true) }
+            }
+
+            if (destination.toLowerCase() == "tags".toLowerCase()) {
+                allRecipesFiltered = allRecipes.filter { recipe ->
+                    recipe.tagsIds.any { tag -> phrase.contains(tag.name, ignoreCase = true) }
+                }
+            }
+        }
+
+        if (onlyMine != null && onlyMine) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> recipe.authorId == authorId }
+        }
+
+        if (onlyFavorite != null && onlyFavorite) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> author.favoriteRecipes.contains(recipe.getId()) }
+        }
+
+        if (onlyPrivate != null && onlyPrivate) {
+            allRecipesFiltered = allRecipesFiltered.filter { recipe -> recipe.recipePrivate }
+        }
+
+        return allRecipesFiltered
+    }
 }
