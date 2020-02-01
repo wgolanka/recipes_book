@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*
 import java.util.*
 import javax.transaction.Transactional
 
-@CrossOrigin(origins = ["http://localhost:8080", "http://localhost:8080/#"], maxAge = 3600)
+@CrossOrigin(origins = ["http://localhost:3000", "http://localhost:3000/#"], maxAge = 3600)
 @Controller
 @Validated
 @RequestMapping("/recipes")
