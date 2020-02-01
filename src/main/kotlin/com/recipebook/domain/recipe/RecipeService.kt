@@ -9,6 +9,7 @@ import com.recipebook.domain.recipe.tag.TagRepository
 import com.recipebook.domain.user.AuthorService
 import javassist.NotFoundException
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.util.*
 import javax.transaction.Transactional
 
@@ -34,12 +35,13 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 0.0,
                 recipeRating,
                 recipe.authorId,
-                recipe.recipeImage,
+                recipe.recipeImage ?: " ",
                 recipe.recipePrivate,
                 recipe.ingredients,
                 recipe.steps,
                 recipe.tagsIds,
-                recipe.comments)
+                recipe.comments,
+                LocalDate.now())
 
         newRecipe.author = author
 
