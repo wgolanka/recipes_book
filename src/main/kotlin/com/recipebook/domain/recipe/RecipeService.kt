@@ -182,6 +182,11 @@ class RecipeService(private val recipeRepository: RecipeRepository,
                 ?: throw NotFoundException("Recipe with id $recipeId doesn't exist")
         recipe.author?.recipes?.remove(recipe)
         authorService.refreshRating(recipe.authorId)
+
+        if (recipe.author!!.favoriteRecipes.contains(recipeId)) {
+            recipe.author!!.favoriteRecipes.remove(recipeId)
+        }
+
         recipe.author = null
         recipe.ingredients.forEach { ingredient ->
             ingredientRepository.delete(ingredient)

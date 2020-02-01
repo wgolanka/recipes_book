@@ -48,7 +48,8 @@ class RecipeController(private val recipeService: RecipeService) {
                             recipe.author?.nickname,
                             recipe.author?.nicknameColorId,
                             recipe.rating,
-                            recipe.recipeImage)
+                            recipe.recipeImage,
+                            recipe.createdDate)
             )
         }
         return status(OK).body(skimmedRecipes)
