@@ -57,6 +57,7 @@ class AuthorController(val authorService: AuthorService) {
                 author.nicknameColorId,
                 author.password,
                 author.authorRating,
+                author.authorRatingSum,
                 author.threshold,
                 author.accountActive)
 
